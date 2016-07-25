@@ -255,9 +255,11 @@ app.Activities = (function () {
 						var activities = app.Activities.activities;
 						var activity = activities.add();
 						activity.Text = document.getElementById('newEventText').value;
+
 						activity.UserId = app.Users.currentUser.get('data').Id;
 						activity.Picture = selected;
 						activity.Title = app.Users.currentUser.get('data').DisplayName;
+						if (app.Places.visiting.name) activity.Title = app.Places.visiting.name;
 						navigator.geolocation.getCurrentPosition(
 							function (position) {
 								activity.Location = {

@@ -77,7 +77,6 @@
     <Content Include="scripts\app\local.js" />
     <Content Include="scripts\app\login.js" />
     <Content Include="scripts\app\map.js" />
-    <Content Include="scripts\app\placeMap1.js" />
     <Content Include="scripts\app\places.js" />
     <Content Include="scripts\app\pushFactory.js" />
     <Content Include="scripts\app\settings.js" />
@@ -87,7 +86,6 @@
     <Content Include="scripts\app\users.js" />
     <Content Include="scripts\js\on2tmap.js" />
     <Content Include="scripts\js\on2tmap2.js" />
-    <Content Include="scripts\app\placeMap.js" />
     <Content Include="styles\images\avatar.png" />
     <Content Include="styles\images\background-picture.png" />
     <Content Include="styles\images\camera.png" />
@@ -105,6 +103,7 @@
     <Content Include="styles\images\googleMap.png" />
     <Content Include="styles\images\googleYouTube.png" />
     <Content Include="styles\images\green-share.png" />
+    <Content Include="styles\images\greencircle.png" />
     <Content Include="styles\images\groupon.png" />
     <Content Include="styles\images\icon-arrow.png" />
     <Content Include="styles\images\icon-arrow@2x.png" />
@@ -142,8 +141,10 @@
     <Content Include="styles\images\notify.png" />
     <Content Include="styles\images\notify_.png" />
     <Content Include="styles\images\on2see-icon-120x120.png" />
+    <Content Include="styles\images\orangecircle.png" />
     <Content Include="styles\images\phone2.png" />
     <Content Include="styles\images\pinterest.png" />
+    <Content Include="styles\images\redcircle.png" />
     <Content Include="styles\images\search.png" />
     <Content Include="styles\images\search2x.png" />
     <Content Include="styles\images\search_active.png" />
@@ -166,13 +167,14 @@
     <Content Include="views\activityView.html" />
     <Content Include="views\eventsView.html" />
     <Content Include="views\iconView.html" />
+    <Content Include="views\infoWindowPartner.html" />
+    <Content Include="views\infoWindowSearch.html" />
     <Content Include="views\listView.html" />
     <Content Include="views\localView.html" />
     <Content Include="views\mapView.html" />
     <Content Include="views\noAppId.html" />
     <Content Include="views\on2tView.html" />
     <Content Include="views\placesView.html" />
-    <Content Include="views\placeView.html" />
     <Content Include="views\signupView.html" />
     <Content Include="views\tripView.html" />
     <Content Include="views\updateView.html" />

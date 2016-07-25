@@ -294,8 +294,7 @@ app.home = kendo.observable({
     }
 
     parent.set('onShow', function (e) {
-    	var param = e.view.params.filter ? JSON.parse(decodeURIComponent(e.view.params.filter)) : null;
-        //app.showAlert(param);
+        var param = e.view.params.filter ? JSON.parse(decodeURIComponent(e.view.params.filter)) : null;
         if (e.view.params.partner) {
             param = {
                 "field": "Place",
@@ -303,7 +302,7 @@ app.home = kendo.observable({
                 "value": e.view.params.partner
             }
         };
-        //var param = e.view.params.filter ? JSON.parse(decodeURIComponent(e.view.params.filter)) : null;
+        //
         //app.showAlert(param);
 
             fetchFilteredData(param);

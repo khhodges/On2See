@@ -6,7 +6,10 @@ var app = app || {};
 
 app.Places = (function () {
     'use strict'
-    var infoWindow, markers, place, result, service, here, request, position, lat1, lng1, allBounds, near, theZoom = 12, allPartners, myAddress, infoContent, HEAD = appSettings.HEAD;
+    var infoWindow, markers, place, result, myCity, service, here, request, position, lat1, lng1, allBounds, near, theZoom = 12,
+		service, allPartners, myAddress,
+		infoContent;
+    var HEAD = appSettings.HEAD;
     /**
 	 * The Google Map CenterControl adds a control to the map that recenters the map on
 	 * current location.
@@ -44,6 +47,8 @@ app.Places = (function () {
         });
     }
     //Places Model loads the known places 
+    //TO DO: Filter by 70 mile region and refresh when locatio changes
+
 
     var placesViewModel = (function () {
         var map, geocoder, locality, home
@@ -96,6 +101,8 @@ app.Places = (function () {
             selectedProduct: null,
             products: appSettings.products
         });
+        //viewModelSearch.selectedProduct = viewModelSearch.products[7];
+        //kendo.bind($("#searchList"), app.Places.locationViewModel.viewModelSearch);
         var resolveString = function (name, find, replace) {
             var length = name.split(find).length - 1;
             var theString;
@@ -111,63 +118,15 @@ app.Places = (function () {
             address: "",
             find: null,
             isGoogleMapsInitialized: true,
-            //service: new google.maps.places.PlacesService(map),
             markers: [],
             details: [],
             hideSearch: false,
             products: viewModelSearch.products,
             selectedProduct: viewModelSearch.selectedProduct,
-            mergePartner: function (partner, marker) {
+            mergePartner: function (partner) {
                 //gets details and adds one partner to details list 
-                //google.maps.event.addListener(marker, 'click',
-                //function () {
-                service.getDetails({ placeId: partner.PlaceId }, function (result, status) {
-                    if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                        console.error(status);
-                        return;
-                    }
-                        //function (result, status) //{ app.Places.locationViewModel.processDetails(result, status) })
-                        // }), function(error){
-                        // app.showAlert(JSON.stringify(error))}
-                    
-                })
             },
-            processDetails: function (result, status) {
-                if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                    app.showAlert(status);
-                    return;
-                }
-                place.details = result;
-                app.Places.visiting = place;
-
-                place.openString = "Closed, ";
-                if (place.opening_hours) {
-                    if (place.opening_hours.open_now) {
-                        place.openString = result.formatted_phone_number + '<strong> Open Now</strong>';
-                    }
-                }
-                place.starString = '<br>No reviews or stars. ';
-                if (result.reviews === undefined || result.stars === undefined) {
-                    place.starString = '... <strong>' + result.reviews.length + '</strong> reviews and <strong>' + result.rating + '</strong> stars, about <strong>' + place.distance + '</strong> miles (ATCF). <br/>' + place.priceString + '</small>';
-                }
-                if (!place.name) {
-                    place.name = "Unknown Name";
-                }
-                if (place.text) {
-                    place.text = resolveString(place.text, "&", "and");
-                }
-                if (place.name) {
-                    place.name = resolveString(place.name, "&", "and");
-                } else {
-                    place.text = "Not Available"
-                };
-                place.addurl = encodeURI('components/aboutView/view.html?Name=' + place.name + '&email=newpartner@on2t.com' + '&longitude=' + place.geometry.location.lng() + '&latitude=' + place.geometry.location.lat() + '&html=hhhhh' + '&icon=styles/images/avatar.png' + '&address=' + result.formatted_address.replace('#', '') + '&textField=' + resolveString(result.reviews[0].text, '\'', '') + '&www=' + result.website + '&tel=' + result.formatted_phone_number + '&placeId=' + place.place_id);
-                place.avatar = "styles/images/avatar.png";
-                place.infoContent = app.Places.locationViewModel.getButtons(place);
-                infoWindow.setContent(place.infoContent);
-                infoWindow.open(map, marker);
-            },
-            locatedAtFormatted: function (partner, marker, text, html, address, name, url, phone, icon) {
+            locatedAtFormatted: function (marker, text, html, address, name, url, phone, icon) {
                 //test for geopoint as a string and convert string to geopoint
                 if (marker.length != undefined) {
                     if (marker.length > 15) {
@@ -226,37 +185,32 @@ app.Places = (function () {
                         place.markerUrl = place.avatar;
                         place.zIndex = 10;
                     }
-                    service.getDetails({ placeId: partner.PlaceId }, function (result, status) {
-                            if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                                console.error(status);
-                                return;
+
+                    try {
+                        //app.Places.locationViewModel.addMarker(place);
+                        marker.Mark = new google.maps.Marker({
+                            map: map,
+                            position: position,
+                            zIndex: place.zIndex,
+                            icon: {
+                                url: place.markerUrl,
+                                anchor: new google.maps.Point(20, 38),
+                                scaledSize: new google.maps.Size(40, 40),
+                                title: viewModelSearch.selectedProduct
                             }
-                    },function(error){app.ShowAlert("Error 241 "+JSON.stringify(error))});
-                    //try {                        
-                    //    //marker = new google.maps.Marker({
-                    //    //    map: map,
-                    //    //    position: position,
-                    //    //    zIndex: place.zIndex,
-                    //    //    icon: {
-                    //    //        url: place.markerUrl,
-                    //    //        anchor: new google.maps.Point(20, 38),
-                    //    //        scaledSize: new google.maps.Size(40, 40),
-                    //    //        title: viewModelSearch.selectedProduct
-                    //    //    }
-                    //    //});
-                    //    //get details and add to details
-                    //    //app.Places.locationViewModel.mergePartner(partner,marker);
-                    //    //Partners InfoWindow PopUp
-                    //    //google.maps.event.addListener(marker.Mark, 'click', function () {
-                    //    //    infoWindow.setContent(htmlString);
-                    //    //    infoWindow.open(map, marker.Mark);
-                    //    //    app.Places.visiting = place;
-                    //    //});
-                    //} catch (e) {
-                    //    app.showAlert("Error 252 " + JSON.stringify(e.message));
-                    //}
+                        });
+                        //Partners InfoWindow PopUp
+                        google.maps.event.addListener(marker.Mark, 'click', function () {
+                            infoWindow.setContent(htmlString);
+                            infoWindow.open(map, marker.Mark);
+                            app.Places.visiting = place;
+                        });
+
+                    } catch (e) {
+                        app.showAlert("Error " + JSON.stringify(e));
+                    }
                 }
-                //return;
+                return;
             },
             updateDistance: function (lat2, lng2) {
                 var R = 6371; // km
@@ -272,8 +226,9 @@ app.Places = (function () {
             },
             updateStars: function (place) {
                 if (app.isNullOrEmpty(place.rating)) {
-                    place.rating = "??";
+                    place.rating = 0;
                 }
+                place.rating += 2;
                 place.isSelected = false;
                 place.isSelectedClass = "";
                 place.visibility = "hidden";
@@ -310,14 +265,14 @@ app.Places = (function () {
                 map.panTo(position);
                 that._putMarker(position); //TO DO: hide or show present location marker
                 locality = position;
-                that.getAddress(position);
+                //that.getAddress(position, that);
                 lat1 = position.lat();
                 lng1 = position.lng();
                 that._isLoading = false;
                 that.toggleLoading();
 
                 var query = new Everlive.Query();
-                query.where().nearSphere('Location', new Everlive.GeoPoint(app.cdr.longitude, app.cdr.latitude), 2, 'miles').ne('Icon', 'styles/images/avatar.png');
+                query.where().nearSphere('Location', new Everlive.GeoPoint(app.cdr.longitude, app.cdr.latitude), 20, 'miles').ne('Icon', 'styles/images/avatar.png');
 
                 var partners = app.everlive.data('Places');
                 partners.get(query).then(function (data) {
@@ -325,10 +280,11 @@ app.Places = (function () {
                     app.Places.locationViewModel.allPartners = allPartners;
                     for (var i = 0; i < data.count; i++) {
                         var partner = allPartners[i];
-                        if (partner && partner.Icon != "styles/images/avatar.png") {
-                            app.Places.locationViewModel.locatedAtFormatted(partner, partner.Location, partner.Description, partner.Html, partner.Address, partner.Place, partner.Website, partner.Phone, partner.Icon);
+                        if (partner.Icon != "styles/images/avatar.png") {
+                            app.Places.locationViewModel.locatedAtFormatted(partner.Location, partner.Description, partner.Html, partner.Address, partner.Place, partner.Website, partner.Phone, partner.Icon);
+                            //get details and add to details
                         }
-                        if (partner && partner.Place === "Home") {
+                        if (partner.Place === "Home") {
                             app.Places.locationViewModel.home = partner;
                             //map.pan(partner.Location)
                         }
@@ -337,30 +293,52 @@ app.Places = (function () {
 					function (error) {
 					    app.showAlert(JSON.stringify(error))
 					});
+
+                //	},
+                //	function (error) {
+                //	    //default map coordinates
+                //	    position = new google.maps.LatLng(0, -20);
+                //	    map.panTo(position);
+
+                //	    that._isLoading = false;
+                //	    that.toggleLoading();
+
+                //	    app.notify.showShortTop("Map.Unable to determine current location. Cannot connect to GPS satellite.");
+                //	}, {
+                //	    timeout: 30000,
+                //	    enableHighAccuracy: true
+                //	}
+                //);
             },
-            getAddress: function (latLng) {
+            getAddress: function (latLng, marker) {
                 geocoder.geocode({
                     'location': latLng
                 }, function (results, status) {
                     if (status === google.maps.GeocoderStatus.OK) {
                         myAddress = '';
+                        myCity = '';
                         if (results[0]) {
                             myAddress = results[0].formatted_address;
-                            try {
-                                document.getElementById('addressStatus').innerHTML = myAddress;
-                                document.getElementById('linkStatus').innerHTML = '<a id="linkStatus" data-role="button" class="butn" href="' + 'components/aboutView/view.html?Name=' + '&email=' + '&longitude=' + latLng.lng() + '&latitude=' + latLng.lat() + '&html=' + '&icon=' + '&address=' + myAddress + '&textField=' + '&www=' + '&tel=' + '&placeId=' + results[0].place_id + '"><img src="styles/images/thumb_up.png" alt="On2See" height="auto" width="15%"></a>';
-
-                            } catch (e) {
-
+                            for (var i = 0; i < results.length; i++) {
+                                if (results[0].address_components[i].types[0] === "locality")
+                                    //|| results[0].address_components[i].types[0] === "administrative_area_level_1" || results[0].address_components[i].types[0] === "country")
+                                {
+                                    myCity = myCity + results[0].address_components[i].long_name; //+", ";
+                                }
                             }
+                            if (document.getElementById('addressStatus')) {
+                                document.getElementById('addressStatus').innerHTML = myAddress
+                        + '<br/><span id="dragStatus"> Lat:' + marker.position.lat().toFixed(3) + ' Lng:' + marker.position.lng().toFixed(3) + '</span>';
+                            }
+                            //document.getElementById('linkStatus').innerHTML = '<a id="linkStatus" data-role="button" class="butn" href="' + 'components/aboutView/view.html?Name=' + '&email=' + '&longitude=' + latLng.lng() + '&latitude=' + latLng.lat() + '&html=' + '&icon=' + '&address=' + myAddress + '&textField=' + '&www=' + '&tel=' + '&placeId=' + results[0].place_id + '"><img src="styles/images/thumb_up.png" alt="On2See" height="auto" width="15%"></a>';                        
                         }
                     } else {
                         window.alert('Geocoder failed due to find Address: ' + status);
                     }
                 });
             },
-            clearMap: function deleteMarkers() {
-				    // Deletes all markers in the array by removing references to them.
+            clearMap: // Deletes all markers in the array by removing references to them.
+				function deleteMarkers() {
 				    markers = app.Places.locationViewModel.markers;
 				    for (var i = 0; i < markers.length; i++) {
 				        markers[i].setMap(null);
@@ -387,7 +365,7 @@ app.Places = (function () {
                 here = map.getBounds();
                 // Specify location, radius and place types for your Places API search.
                 if (app.Places.locationViewModel.find.trim() === "Home") {
-                    map.panTo(app.Places.locationViewModel.home.Location);
+                    map.panTo(location);
                     return;
                 }
                 if (app.Places.locationViewModel.find.trim() === "Back") {
@@ -432,12 +410,13 @@ app.Places = (function () {
             },
             addMarker: function (place) {
                 // If the request succeeds, draw the place location on the map as a marker, and register an event to handle a click on the marker.
+                if (!place.rating || place.rating < 1) place.rating = 1;
                 if (!place.markerUrl) {
-                    place.markerUrl = 'http://laverre.com/ys-x6/soft/YS-X6-PC-150413/html/greencircle.png'; //'http://maps.gstatic.com/mapfiles/circle.png';
+                    place.markerUrl = 'styles/images/greencircle.png';
                     place.zIndex = 7;
-                    if (place.rating < 3.5) place.markerUrl = 'http://laverre.com/ys-x6/soft/YS-X6-PC-150413/html/redcircle.png';
+                    if (place.rating < 3.5) place.markerUrl = 'styles/images/redcircle.png';
                     place.zIndex = 8;
-                    if (place.rating > 4.2) place.markerUrl = 'http://laverre.com/ys-x6/soft/YS-X6-PC-150413/html/orangecircle.png';
+                    if (place.rating > 4.2) place.markerUrl = 'styles/images/orangecircle.png';
                     place.zIndex = 9;
                     if (place.rating === 5.0) {
                         place.markerUrl = place.avatar;
@@ -462,11 +441,8 @@ app.Places = (function () {
                 //now fit the map to the newly inclusive bounds
                 map.fitBounds(allBounds);
                 //Search InfoWindow Popup
-                google.maps.event.addListener(marker, 'click',
-                    function () {
-                	app.showAlert(JSON.stringify(place));
-                	service.getDetails(place,
-                        function (result, status) {
+                google.maps.event.addListener(marker, 'click', function () {
+                    service.getDetails(place, function (result, status) {
                         if (status !== google.maps.places.PlacesServiceStatus.OK) {
                             console.error(status);
                             return;
@@ -481,9 +457,13 @@ app.Places = (function () {
                             }
                         }
                         place.starString = '<br>No reviews or stars. ';
-                        if (result.reviews === undefined || result.stars === undefined) {
-                            place.starString = '... <strong>' + result.reviews.length + '</strong> reviews and <strong>' + result.rating + '</strong> stars, about <strong>' + place.distance + '</strong> miles (ATCF). <br/>' + place.priceString + '</small>';
+                        try {
+                            place.starString = '... <strong>' + result.reviews.length + '</strong> reviews and <strong>' + result.rating + '</strong> stars, about <strong>' + place.distance + '</strong> miles (ATCF). Price Range: <strong>' + place.priceString + '</strong></small>';
+                        } catch (e) {
+                            place.starString = '... No reviews and <strong>' + result.rating + '</strong> stars, about <strong>' + place.distance + '</strong> miles (ATCF). Price Range: <strong>' + place.priceString + '</strong></small>';
                         }
+
+
                         if (!place.name) {
                             place.name = "Unknown Name";
                         }
@@ -495,7 +475,7 @@ app.Places = (function () {
                         } else {
                             place.text = "Not Available"
                         };
-                        place.addurl = encodeURI('components/aboutView/view.html?Name=' + place.name + '&email=newpartner@on2t.com' + '&longitude=' + place.geometry.location.lng() + '&latitude=' + place.geometry.location.lat() + '&html=hhhhh' + '&icon=styles/images/avatar.png' + '&address=' + result.formatted_address.replace('#', '') + '&textField=' + resolveString(result.reviews[0].text, '\'', '') + '&www=' + result.website + '&tel=' + result.formatted_phone_number + '&placeId=' + place.place_id);
+                        place.addurl = encodeURI('components/aboutView/view.html?Name=' + place.name + '&email=newpartner@on2t.com' + '&longitude=' + place.geometry.location.lng() + '&latitude=' + place.geometry.location.lat() + '&html=hhhhh' + '&icon=styles/images/avatar.png' + '&address=' + result.formatted_address.replace('#', '') + '&textField="" &www=' + result.website + '&tel=' + result.formatted_phone_number + '&placeId=' + place.place_id);
                         //    place.infoContent = '<div><span onclick="test(\'' + result.website + '\')\"><strong><u>' + result.name + '</u></a></strong><br>' + 'Phone: ' + result.formatted_phone_number + '<br>' + result.formatted_address.replace('#', '') + place.starString  + place.openString + '</span></div>'
                         //       + '<div><table ${visibility} style="width:100%; margin-top:15px"><tr style="width:100%"><td style="width:33%"><a data-role="button" href='
                         //       + url
@@ -515,17 +495,17 @@ app.Places = (function () {
                 geocoder.geocode({
                     'address': addr
                 },
-					function (results, status) {
-					    if (status !== google.maps.GeocoderStatus.OK) {
-					        app.notify.showShortTop("Map.Unable to find anything.");
-					        return;
-					    }
+                    function (results, status) {
+                        if (status !== google.maps.GeocoderStatus.OK) {
+                            app.notify.showShortTop("Map.Unable to find anything.");
+                            return;
+                        }
 
-					    map.panTo(results[0].geometry.location);
-					    //bounds
-					    that._putMarker(results[0].geometry.location);
-					    locality = results[0].geometry.location;
-					});
+                        map.panTo(results[0].geometry.location);
+                        //bounds
+                        that._putMarker(results[0].geometry.location);
+                        locality = results[0].geometry.location;
+                    });
             },
             toggleLoading: function () {
                 if (this._isLoading) {
@@ -534,9 +514,25 @@ app.Places = (function () {
                     kendo.mobile.application.hideLoading();
                 }
             },
+
             currentLocation: function (marker) {
                 //kjhh to do update my address
-                return '<h3>Center Your Location</h3><p id="addressStatus">' + myAddress + '</p><p id="dragStatus"> Lat:' + marker.position.lat() + ' Lng:' + marker.position.lng() + '</p>' + '<a id="linkStatus" data-role="button" class="butn" href="' + 'components/aboutView/view.html?Name=' + '&email=' + '&longitude=' + marker.position.lng() + '&latitude=' + marker.position.lat() + '&html=' + '&icon=' + '&address=' + myAddress + '&textField=Add your review' + '&www=' + '&tel=' + '&placeId=' + '"><img src="styles/images/thumb_up.png" alt="On2See" height="auto" width="15%"></a>';
+                return '<p><a id="linkStatus" data-role="button" class="butn" data-bind="events: { click: app.helper.activityRoute() }"> <img src="styles/images/camera.png" alt="On2See" height="auto" width="15%"></a>'
+                    + '<a data-role="button" class="butn" href="components/activities/view.html?partner=">'
+                    + '<img src="styles/images/on2see-icon-120x120.png" alt="On2See" height="auto" width="15%"/>'
+                    + '</a>'
+                    + '<a data-role="button" class="butn" href="components/aboutView/view.html?Name=Little%20Havana%20Restaurant&amp;email=newpartner@on2t.com&amp;longitude=-80.09294950000003&amp;latitude=26.3082382&amp;html=hhhhh&amp;icon=styles/images/avatar.png&amp;address=721%20S%20Federal%20Hwy,%20Deerfield%20Beach,%20FL%2033441,%20United%20States&amp;textField=I%20do%20recommend%20this%20place,%20best%20cuban%20food%20in%20the%20area.%20And%20Im%20cuban%20so...%0AThe%20service%20is%20pretty%20fast.%20Thats%20really%20good%20too.&amp;www=http://www.littlehavanarestaurant.com/&amp;tel=(954)%20427-6000&amp;placeId=ChIJCQxPLoHi2IgR4b-PLm4569g">'
+                     + '<img src="styles/images/search.png" alt="On2See" height="auto" width="15%"/>'
+                    + '</a>'
+                    + '<a data-role="button" class="butn" href="components/notifications/view.html?partner=Little Havana Restaurant">'
+                    + '<img src="styles/images/location_active.png" alt="On2See" height="auto" width="15%"/>'
+                    + '</a>'
+                    + '<a data-role="button" class="butn" href="components/notifications/view.html?partner=Little Havana Restaurant">'
+                    + '<img src="styles/images/star.png" alt="On2See" height="auto" width="15%"/>'
+                    + '</a></p>'
+                + '<h3>Drag to any Address</h3>'
+                    + '<p id="addressStatus">' + myAddress
+                    + '<br/><span id="dragStatus"> Lat:' + marker.position.lat().toFixed(2) + ' Lng:' + marker.position.lng().toFixed(2) + '</span></p>'
             },
             _putMarker: function (position) {
                 var that = this;
@@ -551,6 +547,7 @@ app.Places = (function () {
                     draggable: false,
                     zIndex: -1
                 });
+                that.getAddress(position, that._lastMarker);
                 //Center InfoWindow PopUp
                 google.maps.event.addListener(that._lastMarker, 'click', function () {
                     infoWindow.setContent(that.currentLocation(that._lastMarker));
@@ -563,8 +560,8 @@ app.Places = (function () {
                     var newPlace = this.getPosition();
                     map.setCenter(newPlace); // Set map center to marker position
 
-                    that.getAddress(newPlace);
-                    updatePosition(this.getPosition().lat(), this.getPosition().lng()); // update position display
+                    that.getAddress(newPlace, this);
+                    //updatePosition(this.getPosition().lat(), this.getPosition().lng()); // update position display
                 });
 
                 google.maps.event.addListener(infoWindow, 'closeclick', function () {
@@ -583,12 +580,7 @@ app.Places = (function () {
                 //});
 
                 function updatePosition(lat, lng) {
-                    try {
-                        document.getElementById('dragStatus').innerHTML = 'New Lat: ' + lat.toFixed(6) + ' New Lng: ' + lng.toFixed(6);
-
-                    } catch (e) {
-
-                    }
+                    document.getElementById('dragStatus').innerHTML = 'New Lat: ' + lat.toFixed(6) + ' New Lng: ' + lng.toFixed(6);
                 }
 
                 function updateAddress(myAddress) {
@@ -623,10 +615,10 @@ app.Places = (function () {
                 htmlString = htmlString.replace('Google', resolveString(stringResult, find, replace));
                 //Yelp//http://www.yelp.com/biz/bocas-best-pizza-bar-boca-raton
                 replace = '-';
-                var city = "-" + place.details.formatted_address.split(',')[(place.details.formatted_address.split(',').length - 2)].trim().replace(' ', '-');
+                //var city = "-" + place.details.formatted_address.split(',')[(place.details.formatted_address.split(',').length - 2)].trim().replace(' ', '-');
                 // TO DO: fix city
-                if (city.split('-')[3] === undefined) city = "-" + place.details.formatted_address.split(',')[(place.details.formatted_address.split(',').length - 3)].trim().replace(' ', '-');
-                htmlString = htmlString.replace('Yelp', resolveString(stringResult, find, replace) + city);
+                //if (city.split('-')[3] === undefined) city = "-" + place.details.formatted_address.split(',')[(place.details.formatted_address.split(',').length - 3)].trim().replace(' ', '-');
+                htmlString = htmlString.replace('Yelp', resolveString(stringResult, find, replace) + myCity);
                 //https://www.youtube.com/watch?v=oO4IZaujgrM;
                 return htmlString;
             },
@@ -637,7 +629,7 @@ app.Places = (function () {
                 if (typeof google === "undefined") {
                     return;
                 }
-                service = new google.maps.places.PlacesService(map);
+
                 infoWindow = new google.maps.InfoWindow();
                 //create empty LatLngBounds object
                 allBounds = new google.maps.LatLngBounds();
@@ -693,41 +685,36 @@ app.Places = (function () {
                     return;
                 }
                 //resize the map in case the orientation has been changed while showing other tab
-                //google.maps.event.trigger(map, "resize");
+                google.maps.event.trigger(map, "resize");
             },
             hide: function () {
                 //hide loading mask if user changed the tab as it is only relevant to location tab
-                //kendo.mobile.application.hideLoading();
+                kendo.mobile.application.hideLoading();
             },
             locationViewModel: new LocationViewModel(),
             listShow: function () {
                 var urlString = encodeURIComponent('{"Location": {"nearSphere": {"longitude":' + app.cdr.longitude + ', "latitude": ' + app.cdr.latitude + '},"maxDistanceInKilometers": ' + app.cdr.distance + '}}');
+                var base = new URL("/", "https://en.wikipedia.org");
+                var url = new URL("wiki/" + myCity, base);
                 if (app.Places.locationViewModel.details.length < 1) {
-                    //app.mobileApp.navigate("components/partners/view.html?filter=" + urlString)
-                    //var el = new Everlive(appSettings.everlive);
-                    //var query = new Everlive.Query();
-                    //query.where().nearSphere('Location', new Everlive.GeoPoint(app.cdr.longitude, app.cdr.latitude), 20, 'miles').ne('Icon', 'styles/images/avatar.png');
-                    //var data = el.data('Places');
-                    //data.get(query)
-                    //    .then(function (data) {
-                    var data = app.Places.locationViewModel.allPartners;
-                    //        app.Places.locationViewModel.localPartners = data.result
-                    $("#places-listview").kendoMobileListView({
-                        dataSource: data,
-                        template: '<div>#: Place #</div>', //app.templateFactory.listString(),
-                        //template2:'<div >#: Place #<br /> <small>#: Address # </small><p><a href="components/activities/view.html?partner=#: Place #"><img src="styles/images/on2see-icon-120x120.png" alt="On2See" height="auto" width="12%" style="padding:2px"></a><a href="UrlString"><img src="styles/images/thumb_up.png" alt="On2See" height="auto" width="12%" style="padding:2px"></a><a href="components/notifications/view.html?partner=#: Place #");"><img src="styles/images/green-share.png" alt="On2See" height="auto" width="12%" style="padding:2px"></a><a onclick="app.Places.browse(\'https://www.google.com/maps/place/#: Place #\');"><img src="styles/images/googleMap.png" alt="Google" height="auto" width="12%" style="padding:2px"></a><a  data-rel="external" onclick="app.Places.browse(\'https://twitter.com/search?q=#: Place #\');"><img src="styles/images/twitter.png" alt="Twitter" height="auto" width="12%" style="padding:2px"></a><a  data-rel="external" onclick="app.Places.browse(\'https://www.yelp.com/biz/#: Place #\');"><img src="styles/images/yelp_64.png" alt="Yelp" height="auto" width="12%" style="padding:2px"></a><a data-rel="external" onclick="app.Places.browse(\'https://www.facebook.com/#: Place #\');"><img src="styles/images/facebook2.png" alt="Facebook" height="auto" width="12%" style="padding:2px"></a><a  data-rel="external" onclick="app.Places.browse(\' #: Website # \')"><img src="#: Icon #" alt="Logo" height="auto" width="12%"></a></p></div>'
-                    })
-
-                    //    },
-                    //    function (error) {
-                    //        app.showAlert(JSON.stringify(error));
-                    //    });
-                } else {
+                    if (url === null || url === undefined || url.toString().length < 10) {
+                        app.notify.showShortTop(url + " the client data is missing preventing service connection!");
+                    } else {
+                        app.notify.showShortTop("Url.Map Search " + url);
+                        var ref = window.open(url, "_blank", "location=yes");
+                        ref.addEventListener("loaderror", iabLoadError);
+                        ref.addEventListener("exit", iabClose);
+                    }
+                    app.mobileApp.navigate('views/mapView.html');
+                }
+                else {
+                    //app.Places.browse('http://www.google.com/maps/places/Muddy Waters');
                     //var price = '$$$$$'.substring(1, app.Places.locationViewModel.details.price_level);
                     $("#places-listview").kendoMobileListView({
                         dataSource: app.Places.locationViewModel.details,
-                        template: "<div class='${isSelectedClass}'>#: name #<br /> #: vicinity # -- #: distance # m, #: rating # Stars, #: priceString # <table ${visibility} style='width:100%; margin-top:15px'><tr style='width:100%'><td style='width:33%'><a data-role='button' data-bind='click: memorize' class='btn-register'>Endorse</a></td><td style='width:33%'><a data-role='button' data-click='memorize' class='btn-login km-widget km-button'>Memorize</a></td><td style='width:33%'><a data-role='button' href='views/activitiesView.html' class='btn-continue km-widget km-button'>Comment</a></td></tr></table><br /></div>"
-                    });
+                        template: "<div class='${isSelectedClass}'><strong> #: name #</strong> <div ${visibility} style='width:100%; margin-top:10px'> #: vicinity # -- #: distance # m, #: rating # Stars, #: priceString # <br/><a data-role='button' href='views/mapView.html' class='btn-continue km-widget km-button'>Dismiss</a></div></div>"
+                        //<a data-role='button' data-bind='click: memorize' class='btn-register'>Endorse</a><a data-role='button' data-click='memorize' class='btn-login km-widget km-button'>Memorize</a>
+                    })
                 }
             },
             onSelected: function (e) {
