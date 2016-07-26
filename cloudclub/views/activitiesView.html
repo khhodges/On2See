@@ -1,4 +1,4 @@
-<div data-role="view" id="view-all-activities" data-zoom="false" data-init="app.Activities.init" data-layout="default" class="activities-view" data-model="app.Activities">
+<div data-role="view" id="view-all-activities" data-zoom="false" data-init="app.Activities.init" data-layout="default" class="activities-view" data-model="app.Activities" data-show="app.Activities.show">
     <div data-role="header">
         <div data-role="navbar" id="navbarTitle">
             Local Updates
@@ -56,11 +56,13 @@
 </script>
 
 <script type="text/x-kendo-template" id="activityTemplate">
+    <h3>#: Title #</h3>
     <div class="user-avatar" data-role="touch" data-bind="events: { tap: addActivity }">
         <div data-bind="style:{backgroundImage: User().urlPictureUrl}"></div>
     </div>
     <div class="activity-content">
-        <h2 class="person-name">#: User().DisplayName #</h2>
+        
+        <h2 class="person-name"><small><i>#: User().DisplayName #</i></small></h2>
         <div class="cf">
             <a data-role="touch" data-bind="events: { tap: activitySelected }">
                 <div data-bind="visible: Picture">

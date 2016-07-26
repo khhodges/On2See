@@ -113,6 +113,7 @@ app.Places = (function () {
             return theString;
         };
         var LocationViewModel = kendo.data.ObservableObject.extend({
+            myCamera: 'OFF',
             _lastMarker: null,
             _isLoading: false,
             address: "",
@@ -517,19 +518,20 @@ app.Places = (function () {
 
             currentLocation: function (marker) {
                 //kjhh to do update my address
-                return '<p><a id="linkStatus" data-role="button" class="butn" data-bind="events: { click: app.helper.activityRoute() }"> <img src="styles/images/camera.png" alt="On2See" height="auto" width="15%"></a>'
-                    + '<a data-role="button" class="butn" href="components/activities/view.html?partner=">'
-                    + '<img src="styles/images/on2see-icon-120x120.png" alt="On2See" height="auto" width="15%"/>'
-                    + '</a>'
-                    + '<a data-role="button" class="butn" href="components/aboutView/view.html?Name=Little%20Havana%20Restaurant&amp;email=newpartner@on2t.com&amp;longitude=-80.09294950000003&amp;latitude=26.3082382&amp;html=hhhhh&amp;icon=styles/images/avatar.png&amp;address=721%20S%20Federal%20Hwy,%20Deerfield%20Beach,%20FL%2033441,%20United%20States&amp;textField=I%20do%20recommend%20this%20place,%20best%20cuban%20food%20in%20the%20area.%20And%20Im%20cuban%20so...%0AThe%20service%20is%20pretty%20fast.%20Thats%20really%20good%20too.&amp;www=http://www.littlehavanarestaurant.com/&amp;tel=(954)%20427-6000&amp;placeId=ChIJCQxPLoHi2IgR4b-PLm4569g">'
-                     + '<img src="styles/images/search.png" alt="On2See" height="auto" width="15%"/>'
-                    + '</a>'
-                    + '<a data-role="button" class="butn" href="components/notifications/view.html?partner=Little Havana Restaurant">'
-                    + '<img src="styles/images/location_active.png" alt="On2See" height="auto" width="15%"/>'
-                    + '</a>'
-                    + '<a data-role="button" class="butn" href="components/notifications/view.html?partner=Little Havana Restaurant">'
-                    + '<img src="styles/images/star.png" alt="On2See" height="auto" width="15%"/>'
-                    + '</a></p>'
+                return '<p><a id="cameraLink" data-role="button" class="butn"> <img src="styles/images/camera.png" alt="On2See" height="auto" width="15%"></a>'
+                    //+ '<a data-role="button" class="butn" href="components/activities/view.html?partner=">'
+                    //+ '<img src="styles/images/on2see-icon-120x120.png" alt="On2See" height="auto" width="15%"/>'
+                    //+ '</a>'
+                    //+ '<a data-role="button" class="butn" href="components/aboutView/view.html?Name=Little%20Havana%20Restaurant&amp;email=newpartner@on2t.com&amp;longitude=-80.09294950000003&amp;latitude=26.3082382&amp;html=hhhhh&amp;icon=styles/images/avatar.png&amp;address=721%20S%20Federal%20Hwy,%20Deerfield%20Beach,%20FL%2033441,%20United%20States&amp;textField=I%20do%20recommend%20this%20place,%20best%20cuban%20food%20in%20the%20area.%20And%20Im%20cuban%20so...%0AThe%20service%20is%20pretty%20fast.%20Thats%20really%20good%20too.&amp;www=http://www.littlehavanarestaurant.com/&amp;tel=(954)%20427-6000&amp;placeId=ChIJCQxPLoHi2IgR4b-PLm4569g">'
+                    // + '<img src="styles/images/search.png" alt="On2See" height="auto" width="15%"/>'
+                    //+ '</a>'
+                    //+ '<a data-role="button" class="butn" href="components/notifications/view.html?partner=Little Havana Restaurant">'
+                    //+ '<img src="styles/images/location_active.png" alt="On2See" height="auto" width="15%"/>'
+                    //+ '</a>'
+                    //+ '<a data-role="button" class="butn" href="components/notifications/view.html?partner=Little Havana Restaurant">'
+                    //+ '<img src="styles/images/star.png" alt="On2See" height="auto" width="15%"/>'
+                    //+ '</a>'
+                    + '</p>'
                 + '<h3>Drag to any Address</h3>'
                     + '<p id="addressStatus">' + myAddress
                     + '<br/><span id="dragStatus"> Lat:' + marker.position.lat().toFixed(2) + ' Lng:' + marker.position.lng().toFixed(2) + '</span></p>'
@@ -555,6 +557,7 @@ app.Places = (function () {
                     that._lastMarker.setDraggable(true);
                     map.setMapTypeId(google.maps.MapTypeId.HYBRID);
                     infoWindow.open(map, that._lastMarker);
+
                 });
                 google.maps.event.addListener(that._lastMarker, 'dragend', function () {
                     var newPlace = this.getPosition();
@@ -565,11 +568,38 @@ app.Places = (function () {
                 });
 
                 google.maps.event.addListener(infoWindow, 'closeclick', function () {
+                    //app.showAlert("InfoWindo ready 570");
                     that._lastMarker.setDraggable(false);
                     map.setZoom(theZoom);
                     map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
                 });
 
+                //google.maps.event.addListener(infoWindow, 'domready', function () {
+                //    //app.showAlert("InfoWindo ready 570");
+                //    var activityRoute = document.getElementById("cameraLink");
+                //    if (activityRoute) {
+                //        app.Places.locationViewModel.myCamera = 'ON';
+                //        activityRoute.addEventListener("click", app.helper.activityRoute);
+                //    } else {
+                //        //app.showError("Not ready link 580");
+                //    }
+                //});
+
+                google.maps.event.addListener(infoWindow, 'domready', function () {
+                    //app.showAlert("InfoWindo ready 570");
+                    var activityRoute = document.getElementById("cameraLink");
+                    activityRoute.addEventListener("submit", function () {
+                        if (activityRoute) {
+                            app.Places.locationViewModel.myCamera = 'ON';
+                            activityRoute.addEventListener("click", app.helper.activityRoute);
+                        } else {
+                            //app.showError("Not ready link 580");
+                        }
+                    })
+                });
+                //google.maps.event.addDomListener(document.getElementById("cameraLink"), 'click', function () {
+                //    window.alert('cameraLink was clicked!');
+                });
                 //google.maps.event.addListener(map, 'dragend', function () {
                 //    var newPlace = this.getCenter();
                 //    that._lastMarker.setPosition(newPlace); // set marker position to map center
@@ -677,6 +707,7 @@ app.Places = (function () {
                 streetView = map.getStreetView();
             },
             show: function () {
+                this.myCamera = 'OFF';
                 //TO DO: update location and get local partners??
                 if (app.isNullOrEmpty(app.Places.locationViewModel) || !app.Places.locationViewModel.get("isGoogleMapsInitialized")) {
                     app.Places.locationViewModel = new LocationViewModel();

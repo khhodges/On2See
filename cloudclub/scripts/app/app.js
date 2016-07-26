@@ -193,7 +193,8 @@ var app = (function (win) {
         },
         activityRoute: function () {
             if (app.isOnline()) {
-                app.mobileApp.navigate('views/activitiesView.html');
+                //app.showAlert(app.Places.locationViewModel.myCamera);
+                app.mobileApp.navigate('views/activitiesView.html?camera='+app.Places.locationViewModel.myCamera);
             } else {
                 app.notify.dialogAlert();
 				app.mobileApp.navigate('components/activities/view.html');
@@ -342,20 +343,23 @@ var app = (function (win) {
 
         dialogAlert: function () {
             navigator.notification.confirm(
-            'First Register or Logon.',  // message
+            'Continue without Authentication (no Post options) or Register to access essental community features when you Logon.',  // message
             app.notify.onPrompt,                  // callback to invoke
             'Authentication Required',            // title
-            ['Login', 'Register']             // buttonLabels
+            ['Login', 'Register','Continue']             // buttonLabels
             //'User Name address ...'                 // defaultText
         )
         },
         onPrompt: function (results) {
-            //alert("You selected button number " + results.buttonIndex + " and entered " + results.input1);
+            //alert("You selected button number " + results + " and entered " + results);
+            if (results === 3) {
+                app.notify.showShortTop("Continue on this page without community POST features.");
+            }
             if (results === 2) {
-                app.notify.showShortTop("If you register and login all many extended community features are available.");
+                app.notify.showShortTop("Registration authorizes access to many extended personal, community and local notification features.");
                 app.mobileApp.navigate('views/signupView.html');
             }
-            else {
+            if (results === 1) {
                 app.notify.showShortTop("Please sign in.");
                 app.mobileApp.navigate('#welcome');
             }

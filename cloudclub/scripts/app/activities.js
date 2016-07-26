@@ -17,11 +17,12 @@ app.Activities = (function () {
 		//$(document.body).css("visibility", "visible");
 	};
 
-	//var show = function () {
-	//    if (!app.isOnline()) {
-	//        app.mobileApp.navigate('#welcome');
-	//    }
-	//};
+	var show = function (e) {
+	    if (app.Places.locationViewModel.myCamera === 'ON') {
+	        app.Places.locationViewModel.myCamera = 'OFF';
+	        app.Activities.addActivity();
+	    }
+	};
 	// Activities model
 	var activitiesModel = (function () {
 		var activityModel = {
@@ -311,7 +312,17 @@ app.Activities = (function () {
 			document.getElementById('addButton').innerText = "Add Event";
 			document.getElementById('newEventText').value = "";
 		};
-		var pickImage = function (e) {
+		var takePicture = function () {
+		    navigator.camera.getPicture(success, error, {
+		        //kjhh best result including iphone rotation
+		        quality: 100,
+		        destinationType: navigator.camera.DestinationType.FILE_URI,
+		        sourceType: navigator.camera.PictureSourceType.CAMERA,
+		        encodingType: navigator.camera.EncodingType.JPEG,
+		        correctOrientation: true
+		    })
+		};
+		var pickImage = function () {
 			if (app.isOnline()) {
 				$enterEvent = document.getElementById('enterEvent');
 				app.mobileApp.navigate('#view-all-activities');
@@ -321,17 +332,20 @@ app.Activities = (function () {
 					document.getElementById('addButton').innerText = "Add Event";
 					document.getElementById('newEventText').value = "";
 					document.getElementById('picture').src = "styles/images/default-image.jpg";
-				} else {
-					$enterEvent.style.display = 'block';
-					document.getElementById('addButton').innerText = "Cancel";
-					navigator.camera.getPicture(success, error, {
-						//kjhh best result including iphone rotation
-						quality: 100,
-						destinationType: navigator.camera.DestinationType.FILE_URI,
-						sourceType: navigator.camera.PictureSourceType.CAMERA,
-						encodingType: navigator.camera.EncodingType.JPEG,
-						correctOrientation: true
-					});
+				        } else {
+		            $enterEvent.style.display = 'block';
+		            document.getElementById('addButton').innerText = "Cancel";
+				    takePicture();
+					//$enterEvent.style.display = 'block';
+					//document.getElementById('addButton').innerText = "Cancel";
+					//navigator.camera.getPicture(success, error, {
+					//	//kjhh best result including iphone rotation
+					//	quality: 100,
+					//	destinationType: navigator.camera.DestinationType.FILE_URI,
+					//	sourceType: navigator.camera.PictureSourceType.CAMERA,
+					//	encodingType: navigator.camera.EncodingType.JPEG,
+					//	correctOrientation: true
+					//});
 				}
 			}
 		};
@@ -341,7 +355,7 @@ app.Activities = (function () {
 			activitySelected: activitySelected,
 			addActivity: pickImage,
 			saveActivity: saveImageActivity,
-			//  show: show,
+			show: show,
 			crop: crop
 		};
 	}());
