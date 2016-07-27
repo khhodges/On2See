@@ -7,17 +7,20 @@ var app = app || {};
 
 app.Activities = (function () {
 	'use strict'
-	var $enterEvent, $newEventText, validator, selected, $baseImage;
+	var $enterEvent, $activityTitle, $newEventText, validator, selected, $baseImage;
 	var init = function () {
 		validator = $('#enterEvent').kendoValidator().data('kendoValidator');
 		$enterEvent = $('#enterEvent');
 		$newEventText = $('#newEventText');
+		$activityTitle = $('#activityTitle');
 		$newEventText.on('keydown', app.helper.autoSizeTextarea);
 		validator.hideMessages();
 		//$(document.body).css("visibility", "visible");
 	};
 
 	var show = function (e) {
+	    //if (!app.Places.visiting) app.Places.visiting = app.Places.home;
+	    document.getElementById('activityTitle').innerText = app.Users.currentUser.data.DisplayName + ' about ' + app.Places.visiting.name;
 	    if (app.Places.locationViewModel.myCamera === 'ON') {
 	        app.Places.locationViewModel.myCamera = 'OFF';
 	        app.Activities.addActivity();
@@ -66,8 +69,16 @@ app.Activities = (function () {
 					defaultValue: null
 				},
 				Value: {
-					fields: 'Value',
-					defaultValue: 0
+				    fields: 'Value',
+				    defaultValue: 0
+				},
+				Start: {
+				    fields: 'StartDate',
+				    defaultValue: new Date()
+				},
+				End: {
+				    fields: 'EndDate',
+				    defaultValue: new Date()
 				},
 				/*Id  Identifier
 				//CreatedAt  DateTime
@@ -88,7 +99,10 @@ app.Activities = (function () {
 				//Value  Number*/
 			},
 			CreatedAtFormatted: function () {
-				return app.helper.formatDate(this.get('CreatedAt'));
+			    return app.helper.formatDate(this.get('CreatedAt'));
+			},
+			DateFormatted: function (date) {
+			    return app.helper.formatDate(date);
 			},
 
 			LikesCount: function () {
@@ -229,7 +243,7 @@ app.Activities = (function () {
 				activity.Text = $newEventText.val();
 				$newEventText.Val = "";
 				activity.UserId = app.Users.currentUser.get('data').Id;
-				document.getElementById('addButton').innerText = "Add Event";
+				document.getElementById('addButton').innerText = "Post";
 				app.mobileApp.showLoading();
 				activities.sync();
 				app.mobileApp.hideLoading();
@@ -270,7 +284,7 @@ app.Activities = (function () {
 								activities.sync();
 								$enterEvent.style.display = 'none';
 								validator.hideMessages();
-								document.getElementById('addButton').innerText = "Add Event";
+								document.getElementById('addButton').innerText = "Post";
 								document.getElementById('newEventText').value = "";
 								document.getElementById('picture').src = "styles/images/default-image.jpg";
 								app.mobileApp.hideLoading();
@@ -292,7 +306,7 @@ app.Activities = (function () {
 			if ($enterEvent.style.display === 'block') {
 				$enterEvent.style.display = 'none';
 				validator.hideMessages();
-				document.getElementById('addButton').innerText = "Add Event";
+				document.getElementById('addButton').innerText = "Post";
 				document.getElementById('newEventText').value = "";
 				document.getElementById('picture').src = "styles/images/default-image.jpg";
 			} else {
@@ -309,7 +323,7 @@ app.Activities = (function () {
 			app.notify.showShortTop("No selection was detected.");
 			$enterEvent.style.display = 'none';
 			validator.hideMessages();
-			document.getElementById('addButton').innerText = "Add Event";
+			document.getElementById('addButton').innerText = "Post";
 			document.getElementById('newEventText').value = "";
 		};
 		var takePicture = function () {
@@ -324,12 +338,12 @@ app.Activities = (function () {
 		};
 		var pickImage = function () {
 			if (app.isOnline()) {
-				$enterEvent = document.getElementById('enterEvent');
+			    $enterEvent = document.getElementById('enterEvent');
 				app.mobileApp.navigate('#view-all-activities');
 				if ($enterEvent.style.display === 'block') {
 					$enterEvent.style.display = 'none';
 					validator.hideMessages();
-					document.getElementById('addButton').innerText = "Add Event";
+					document.getElementById('addButton').innerText = "Post";
 					document.getElementById('newEventText').value = "";
 					document.getElementById('picture').src = "styles/images/default-image.jpg";
 				        } else {

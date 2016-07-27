@@ -114,6 +114,14 @@ app.home = kendo.observable({
 		                    field: 'Address',
 		                    defaultValue: ''
 		                },
+		                'City': {
+		                    field: 'City',
+		                    defaultValue: ''
+		                },
+		                'Zipcode': {
+		                    field: 'Zipcode',
+		                    defaultValue: ''
+		                },
 		                'Image': {
 		                    field: 'Image',
 		                    defaultValue: ''
@@ -223,7 +231,8 @@ app.home = kendo.observable({
                 icon: e.view.params.icon,
                 address: e.view.params.address,
                 tel: e.view.params.tel,
-
+                city: e.view.params.city,
+                zipcode: e.params.zipcode
             });
         },
         onSaveClick: function (e) {

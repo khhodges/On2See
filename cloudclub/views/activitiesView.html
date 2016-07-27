@@ -4,7 +4,7 @@
             Local Updates
 
             <a data-role="button" href="#appDrawer" data-rel="drawer" data-align="left" data-icon="drawer-button"></a>
-            <a id="addButton" class="nav-button" data-align="right" data-role="button" data-click="app.Activities.addActivity">Contribute</a>
+            <a id="addButton" class="nav-button" data-align="right" data-role="button" data-click="app.Activities.addActivity">Post</a>
         </div>
     </div>
     <div id="scroller">
@@ -15,14 +15,14 @@
         <br />
         <div id="enterEvent" class="share-form-wrp" data-role="listview" data-style="inset" style="display: none">
             <div class="cf">
-                <div class="activity-content">
-                    <p>Croped Image:</p>
+                <div class="activity-content" >
+                    <p id="activityTitle"></p>
                     <canvas id="canvas" width="250" height="250" style="border:1px solid #d3d3d3; padding:0px;top:0;bottom: 0;left: 0;right: 0;margin:auto;">
                         Your browser does not support the HTML5 canvas tag.
                     </canvas>
                     <div class="cf">
                         <div class="user-share">
-                            <textarea id="newEventText" style="background-color: azure;font-style: italic;" placeholder="What's the event?" required validationMessage="Comment text is required to describe your contribution!"></textarea>
+                            <textarea id="newEventText" style="background-color: azure;font-style: italic;" placeholder="What's the message to add?" required validationMessage="Comment text is required to describe your contribution!"></textarea>
                             <a class="btn" data-align="right" data-role="button" data-bind="click: saveActivity" style="margin: 20px; padding:10px">Save this Event</a>
                         </div>
                     </div>
