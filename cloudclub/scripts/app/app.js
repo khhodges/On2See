@@ -73,15 +73,17 @@ var app = (function (win) {
             //localStorage.setItem("cdr", cdr.latitude + ":" + cdr.longitude);
         },
 			function (error) {
+                app.showShortTop("You can always select your location using the search box with a two part address including a comma, for example <i>London,England</i>.")
 			    //default map coordinates
 			    //app.notify.showShortTop("Map.Unable to determine current location. Cannot connect to GPS satellite.");
 			    if (localStorage.getItem("cdr")) {
 			        app.cdr = localStorage.getItem("cdr");
+
 			    } else {
-			        app.cdr = new google.maps.LatLng(0, -20);
+			        app.cdr = new google.maps.LatLng(40.71, -74.01);
 			    }
 			}, {
-			    timeout: 10000,
+			    timeout: 20000,
 			    enableHighAccuracy: true
 			});
         if (device.platform === 'iOS' && parseFloat(device.version) >= 7.0) {
@@ -559,9 +561,9 @@ var app = (function (win) {
         getLocation: function (callBack) {
 
             var options = {
-                enableHighAccuracy: false,
-                timeout: 5000,
-                maximumAge: 2000000
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 200000
             };
 
             function success(pos) {

@@ -20,7 +20,10 @@ app.Activities = (function () {
 
 	var show = function (e) {
 	    //if (!app.Places.visiting) app.Places.visiting = app.Places.home;
-	    document.getElementById('activityTitle').innerText = app.Users.currentUser.data.DisplayName + ' about ' + app.Places.visiting.name;
+	    var theName = "My Private Feed";
+            if(app.Places.visiting.name){
+	         theName = app.Places.visiting.name}
+	    document.getElementById('activityTitle').innerText = app.Users.currentUser.data.DisplayName + ' about ' + theName;
 	    if (app.Places.locationViewModel.myCamera === 'ON') {
 	        app.Places.locationViewModel.myCamera = 'OFF';
 	        app.Activities.addActivity();
@@ -235,7 +238,7 @@ app.Activities = (function () {
 		}
 		var saveActivity = function () {
 			// Validating of the required fields
-			if (validator.validate()) {
+		    if (validator.validate()) {
 				$enterEvent.style.display = 'none';
 				// Adding new comment to Comments model
 				var activities = app.Activities.activities;
@@ -244,7 +247,6 @@ app.Activities = (function () {
 				$newEventText.Val = "";
 				activity.UserId = app.Users.currentUser.get('data').Id;
 				document.getElementById('addButton').innerText = "Post";
-				app.mobileApp.showLoading();
 				activities.sync();
 				app.mobileApp.hideLoading();
 			}
@@ -273,7 +275,7 @@ app.Activities = (function () {
 
 						activity.UserId = app.Users.currentUser.get('data').Id;
 						activity.Picture = selected;
-						activity.Title = app.Users.currentUser.get('data').DisplayName;
+						activity.Title = "My Private Feed";//app.Users.currentUser.get('data').DisplayName;
 						if (app.Places.visiting.name) activity.Title = app.Places.visiting.name;
 						navigator.geolocation.getCurrentPosition(
 							function (position) {

@@ -323,8 +323,7 @@ app.Places = (function () {
             },
             getComponent: function (address_components, component) {
                 for (var i = 0; i < address_components.length; i++) {
-                    if (address_components[i].types[0] === component)
-                    {
+                    if (address_components[i].types[0] === component) {
                         myCity = myCity + address_components[i].long_name;
                         return myCity;
                     }
@@ -385,12 +384,12 @@ app.Places = (function () {
                 service = new google.maps.places.PlacesService(map);
                 here = map.getBounds();
                 // Specify location, radius and place types for your Places API search.
-                
-                    if (app.Places.locationViewModel.find === "Home") {
-                        map.panTo(location);
-                        return;
-                    }
-                
+
+                if (app.Places.locationViewModel.find === "Home") {
+                    map.panTo(location);
+                    return;
+                }
+
                 if (app.Places.locationViewModel.find.trim() === "Back") {
                     map.panTo(locality);
                     return;
@@ -544,23 +543,21 @@ app.Places = (function () {
 
             currentLocation: function (marker) {
                 //kjhh to do update my address
-                return '<p><a id="cameraLink" data-role="button" class="butn"> <img src="styles/images/camera.png" alt="On2See" height="auto" width="15%"></a>'
-                    //+ '<a data-role="button" class="butn" href="components/activities/view.html?partner=">'
-                    //+ '<img src="styles/images/on2see-icon-120x120.png" alt="On2See" height="auto" width="15%"/>'
-                    //+ '</a>'
-                    //+ '<a data-role="button" class="butn" href="components/aboutView/view.html?Name=Little%20Havana%20Restaurant&amp;email=newpartner@on2t.com&amp;longitude=-80.09294950000003&amp;latitude=26.3082382&amp;html=hhhhh&amp;icon=styles/images/avatar.png&amp;address=721%20S%20Federal%20Hwy,%20Deerfield%20Beach,%20FL%2033441,%20United%20States&amp;textField=I%20do%20recommend%20this%20place,%20best%20cuban%20food%20in%20the%20area.%20And%20Im%20cuban%20so...%0AThe%20service%20is%20pretty%20fast.%20Thats%20really%20good%20too.&amp;www=http://www.littlehavanarestaurant.com/&amp;tel=(954)%20427-6000&amp;placeId=ChIJCQxPLoHi2IgR4b-PLm4569g">'
-                    // + '<img src="styles/images/search.png" alt="On2See" height="auto" width="15%"/>'
-                    //+ '</a>'
-                    //+ '<a data-role="button" class="butn" href="components/notifications/view.html?partner=Little Havana Restaurant">'
-                    //+ '<img src="styles/images/location_active.png" alt="On2See" height="auto" width="15%"/>'
-                    //+ '</a>'
-                    //+ '<a data-role="button" class="butn" href="components/notifications/view.html?partner=Little Havana Restaurant">'
-                    //+ '<img src="styles/images/star.png" alt="On2See" height="auto" width="15%"/>'
-                    //+ '</a>'
+                var url = "styles/images/avatar.png";
+                if (app.Users.currentUser.data) url = app.Users.currentUser.data.PictureUrl;
+                return '<p>'
+                    + '<a id="avatarLink" data-role="button" class="butn"> <img src=' + url + ' alt="On2See" height="auto" width="15%"></a>'
+                    + '<a id="cameraLink" data-role="button" class="butn"> <img src="styles/images/camera.png" alt="On2See" height="auto" width="15%"></a>'
+                    + '<a id="myFeedLink" data-role="button" class="butn" ><img src="styles/images/feed.png" alt="My Private Feed" height="auto" width="15%"/></a>'
+                    + '<a id="goHome" data-role="button" class="butn" ><img src="styles/images/goHome.png" alt="Go Home" height="auto" width="15%"/></a>'
+                    + '<a id="saveAddressLink" data-role="button" class="butn" ><img src="styles/images/contacts.png" alt="Go Home" height="auto" width="15%"/></a>'
+                    + '<a id="calendarLink" data-role="button" class="butn" ><img src="styles/images/calendar.png" alt="Go Home" height="auto" width="15%"/></a>'
                     + '</p>'
-                + '<h3>Drag to any Address</h3>'
+                    + '<h3>Drag to locate the Inspector</h3>'
                     + '<p id="addressStatus">' + myAddress
-                    + '<br/><span id="dragStatus"> Lat:' + marker.position.lat().toFixed(2) + ' Lng:' + marker.position.lng().toFixed(2) + '</span></p>'
+                    + '<br/><span id="dragStatus"> Lat:' + marker.position.lat().toFixed(2) + ' Lng:' + marker.position.lng().toFixed(2) + '<br/>' + app.helper.formatDate(new Date()) + '</span>'
+                    + '<br/><span id="dateTime">' + '</span>'
+                    + '</p>'
             },
             _putMarker: function (position) {
                 var that = this;
@@ -572,8 +569,8 @@ app.Places = (function () {
                 that._lastMarker = new google.maps.Marker({
                     map: map,
                     position: position,
-                    draggable: false,
-                    zIndex: -1
+                    draggable: true,
+                    zIndex: 100
                 });
                 that.getAddress(position, that._lastMarker);
                 //Center InfoWindow PopUp
@@ -584,7 +581,7 @@ app.Places = (function () {
                     map.setMapTypeId(google.maps.MapTypeId.HYBRID);
                     app.Places.visiting = Selfie;
                     infoWindow.open(map, that._lastMarker);
-
+                    that._lastMarker.setZIndex(100);
                 });
                 google.maps.event.addListener(that._lastMarker, 'dragend', function () {
                     var newPlace = this.getPosition();
@@ -596,19 +593,62 @@ app.Places = (function () {
 
                 google.maps.event.addListener(infoWindow, 'closeclick', function () {
                     //app.showAlert("InfoWindo ready 570");
-                    that._lastMarker.setDraggable(false);
+                    //that._lastMarker.setDraggable(false);
                     map.setZoom(theZoom);
                     map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
                 });
 
                 google.maps.event.addListener(infoWindow, 'domready', function () {
-                    //app.showAlert("InfoWindo ready 570");
+                    var avatarRoute = document.getElementById("avatarLink");
+                    if (avatarRoute) {
+                        avatarRoute.addEventListener("click", function () {
+                            if (app.isOnline()) {
+                                app.mobileApp.navigate("views/updateView.html")
+                            }
+                            else {
+                                app.mobileApp.navigate("#welcome")
+                            }
+                        });
+                    }
                     var activityRoute = document.getElementById("cameraLink");
                     if (activityRoute) {
                         app.Places.locationViewModel.myCamera = 'ON';
                         activityRoute.addEventListener("click", app.helper.activityRoute);
-                    } else {
-                        //app.showError("Not ready link 580");
+                    }
+                    var feedRoute = document.getElementById("myFeedLink");
+                    if (feedRoute) {
+                        feedRoute.addEventListener("click", function () {
+                            if (app.isOnline()) {
+                                app.mobileApp.navigate("views/activitiesView.html?ActivityText=My Private Feed");
+                            } else {
+                                app.mobileApp.navigate("components/activities/view.html?ActivityText=My Private Feed");
+                            }
+                        });
+                    }
+                    var goHome = document.getElementById("goHome");
+                    if (goHome) {
+                        goHome.addEventListener("click",
+                            function () {
+                                app.notify.getLocation(function (position) {
+                                    map.panTo({ lat: position.latitude, lng: position.longitude });
+                                })
+                            });
+                    }
+                    var saveAddressLink = document.getElementById("saveAddressLink");
+                    if (saveAddressLink) {
+                        saveAddressLink.addEventListener("click",
+                            function () {
+                                app.mobileApp.navigate("components/aboutView/view.html")
+                            }
+                            )
+                    }
+                    var calendarLink = document.getElementById("calendarLink");
+                    if (calendarLink) {
+                        calendarLink.addEventListener("click",
+                             function () {
+                                 app.mobileApp.navigate("components/aboutView/view.html")
+                             }
+                            )
                     }
                 });
 
