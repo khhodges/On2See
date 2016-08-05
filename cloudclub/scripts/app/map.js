@@ -113,7 +113,6 @@ app.Places = (function () {
             return theString;
         };
         var LocationViewModel = kendo.data.ObservableObject.extend({
-            myCamera: 'OFF',
             _lastMarker: null,
             _isLoading: false,
             address: "",
@@ -131,7 +130,7 @@ app.Places = (function () {
                 //test for geopoint as a string and convert string to geopoint
                 if (marker.length != undefined) {
                     if (marker.length > 15) {
-                        app.showAlert('Marker Error' + marker);
+                        app.showError('Marker Error' + marker);
                     }
                 }
                 marker.lat = marker.latitude;
@@ -208,7 +207,7 @@ app.Places = (function () {
                         });
 
                     } catch (e) {
-                        app.showAlert("Error " + JSON.stringify(e));
+                        app.showError("Error " + JSON.stringify(e));
                     }
                 }
                 return;
@@ -227,9 +226,9 @@ app.Places = (function () {
             },
             updateStars: function (place) {
                 if (app.isNullOrEmpty(place.rating)) {
-                    place.rating = 0;
+                    place.rating = 1;
                 }
-                place.rating += 2;
+                place.sizeRating = place.rating + 1;
                 place.isSelected = false;
                 place.isSelectedClass = "";
                 place.visibility = "hidden";
@@ -302,7 +301,7 @@ app.Places = (function () {
                     }
                 },
 					function (error) {
-					    app.showAlert(JSON.stringify(error))
+					    app.showError(JSON.stringify(error))
 					});
 
                 //	},
@@ -324,7 +323,7 @@ app.Places = (function () {
             getComponent: function (address_components, component) {
                 for (var i = 0; i < address_components.length; i++) {
                     if (address_components[i].types[0] === component) {
-                        myCity = myCity + address_components[i].long_name;
+                        myCity = address_components[i].long_name;
                         return myCity;
                     }
                 }
@@ -432,19 +431,19 @@ app.Places = (function () {
             },
             addMarker: function (place) {
                 // If the request succeeds, draw the place location on the map as a marker, and register an event to handle a click on the marker.
-                if (!place.rating || place.rating < 1) place.rating = 1;
+                if (!place.sizeRating || place.sizeRating < 1) place.sizeRating = 1;
                 if (!place.markerUrl) {
                     place.markerUrl = 'styles/images/greencircle.png';
                     place.zIndex = 7;
-                    if (place.rating < 5.5) {
+                    if (place.sizeRating < 4.5) {
                         place.markerUrl = 'styles/images/redcircle.png';
                         place.zIndex = 8;
                     }
-                    if (place.rating > 6.2) {
+                    if (place.sizeRating > 5.2) {
                         place.markerUrl = 'styles/images/orangecircle.png';
                         place.zIndex = 9;
                     }
-                    if (place.rating === 5.0) {
+                    if (place.sizeRating === 6.0) {
                         place.markerUrl = place.avatar;
                         place.zIndex = 10;
                     }
@@ -455,10 +454,11 @@ app.Places = (function () {
                     position: place.geometry.location,
                     icon: {
                         url: place.markerUrl,
-                        anchor: new google.maps.Point(3 * place.rating, 5 * place.rating),
-                        scaledSize: new google.maps.Size(4 * place.rating, 4 * place.rating)
+                        anchor: new google.maps.Point(3 * place.sizeRating, 5 * place.sizeRating),
+                        scaledSize: new google.maps.Size(4 * place.sizeRating, 4 * place.sizeRating)
                     }
                 });
+                place.rating = place.rating.toFixed(1);
 
 
                 app.Places.locationViewModel.markers.push(marker);
@@ -546,12 +546,12 @@ app.Places = (function () {
                 var url = "styles/images/avatar.png";
                 if (app.Users.currentUser.data) url = app.Users.currentUser.data.PictureUrl;
                 return '<p>'
-                    + '<a id="avatarLink" data-role="button" class="butn"> <img src=' + url + ' alt="On2See" height="auto" width="15%"></a>'
-                    + '<a id="cameraLink" data-role="button" class="butn"> <img src="styles/images/camera.png" alt="On2See" height="auto" width="15%"></a>'
-                    + '<a id="myFeedLink" data-role="button" class="butn" ><img src="styles/images/feed.png" alt="My Private Feed" height="auto" width="15%"/></a>'
-                    + '<a id="goHome" data-role="button" class="butn" ><img src="styles/images/goHome.png" alt="Go Home" height="auto" width="15%"/></a>'
-                    + '<a id="saveAddressLink" data-role="button" class="butn" ><img src="styles/images/contacts.png" alt="Go Home" height="auto" width="15%"/></a>'
-                    + '<a id="calendarLink" data-role="button" class="butn" ><img src="styles/images/calendar.png" alt="Go Home" height="auto" width="15%"/></a>'
+                    + '<div class="user-avatar" style="margin-left:5px"> <a id="avatarLink" data-role="button" class="butn" style="padding:5px"> <img id="myAvatar" src=' + url + ' alt="On2See" height="auto" width="25%"></a></div>'
+                    + '<a id="cameraLink" data-role="button" class="butn" style="padding:5px; margin-left:-15px"> <img src="styles/images/camera.png" alt="On2See" height="auto" width="25%"></a>'
+                    + '<a id="myFeedLink" data-role="button" class="butn" style="padding:5px"><img src="styles/images/feed.png" alt="My Private Feed" height="auto" width="25%"/></a>'
+                    + '<a id="goHome" data-role="button" class="butn" style="padding:5px"><img src="styles/images/goHome.png" alt="Go Home" height="auto" width="25%"/></a>'
+                    + '<a id="saveAddressLink" data-role="button" class="butn" style="padding:5px"><img src="styles/images/contacts.png" alt="Go Home" height="auto" width="25%"/></a>'
+                    + '<a id="calendarLink" data-role="button" class="butn" style="padding:5px"><img src="styles/images/calendar.png" alt="Go Home" height="auto" width="25%"/></a>'
                     + '</p>'
                     + '<h3>Drag to locate the Inspector</h3>'
                     + '<p id="addressStatus">' + myAddress
@@ -612,14 +612,13 @@ app.Places = (function () {
                     }
                     var activityRoute = document.getElementById("cameraLink");
                     if (activityRoute) {
-                        app.Places.locationViewModel.myCamera = 'ON';
-                        activityRoute.addEventListener("click", app.helper.activityRoute);
+                        activityRoute.addEventListener("click", app.helper.cameraRoute);
                     }
                     var feedRoute = document.getElementById("myFeedLink");
                     if (feedRoute) {
                         feedRoute.addEventListener("click", function () {
                             if (app.isOnline()) {
-                                app.mobileApp.navigate("views/activitiesView.html?ActivityText=My Private Feed");
+                                app.mobileApp.navigate("views/activitiesView.html?ActivityText=My Private Feed&User=" + app.Users.currentUser.data.DisplayName);
                             } else {
                                 app.mobileApp.navigate("components/activities/view.html?ActivityText=My Private Feed");
                             }
@@ -774,13 +773,16 @@ app.Places = (function () {
                 streetView = map.getStreetView();
             },
             show: function () {
-                this.myCamera = 'OFF';
+                if (app.isOnline()) {
+                    if (document.getElementById("myAvatar")) {
+                        document.getElementById("myAvatar").src = app.Users.currentUser.data.PictureUrl;
+                    }
+                }
                 //TO DO: update location and get local partners??
                 if (app.isNullOrEmpty(app.Places.locationViewModel) || !app.Places.locationViewModel.get("isGoogleMapsInitialized")) {
                     app.Places.locationViewModel = new LocationViewModel();
                     //TO DO: Clean up map locations
                     app.notify.showShortTop("Map reload!");
-                    return;
                 }
                 //resize the map in case the orientation has been changed while showing other tab
                 google.maps.event.trigger(map, "resize");
@@ -790,27 +792,34 @@ app.Places = (function () {
                 kendo.mobile.application.hideLoading();
             },
             locationViewModel: new LocationViewModel(),
+            openBrowser: function(){
+
+            },
             listShow: function () {
-                $("#places-listview").kendoMobileListView({
-                    dataSource: app.Places.locationViewModel.details,
-                    template: "<div class='${isSelectedClass}'><strong> #: name #</strong> <div ${visibility} style='width:100%; margin-top:10px'> #: vicinity # -- #: distance # m, #: rating # Stars, #: priceString # <br/><a data-role='button' href='views/mapView.html' class='btn-continue km-widget km-button'>Hide</a></div></div>"
-                    //<a data-role='button' data-bind='click: memorize' class='btn-register'>Endorse</a><a data-role='button' data-click='memorize' class='btn-login km-widget km-button'>Memorize</a>
-                })
-                var base = new URL("/", "https://en.wikipedia.org");
-                var thisPlace = myCity;
-                if (app.Places.visiting.City !== undefined) thisPlace = app.Places.visiting.City;
-                var url = new URL("wiki/" + thisPlace, base);
-                if (app.Places.locationViewModel.details.length < 1) {
-                    if (url === null || url === undefined || url.toString().length < 10) {
-                        app.notify.showShortTop(url + " the client data is missing preventing service connection!");
-                    } else {
-                        app.notify.showShortTop("Url.Map Search " + url);
-                        var ref = window.open(url, "_blank", "location=yes");
-                        ref.addEventListener("loaderror", iabLoadError);
-                        ref.addEventListener("exit", iabClose);
+                try {
+                    $("#places-listview").kendoMobileListView({
+                        dataSource: app.Places.locationViewModel.details,
+                        template: "<div class='${isSelectedClass}'><strong> #: name #</strong> #: rating # Stars<div ${visibility} style='width:100%; margin-top:10px'> #: vicinity # -- #: distance # m,  #: priceString # <br/><a data-role='button' href='views/mapView.html' class='btn-continue km-widget km-button'>Hide</a></div></div>",
+                        //sort: { field: rating, dir: desc }
+                    })
+                    if (app.Places.locationViewModel.details.length < 1) {
+                        var base = new URL("/", "https://en.wikipedia.org");
+                        if (app.Places.visiting.City !== undefined) var thisPlace = app.Places.visiting.City;
+                        var url = new URL("wiki/" + thisPlace, base);
+                        if (url === null || url === undefined || url.toString().length < 10) {
+                            app.notify.showShortTop(url + " the client data is missing preventing service connection!");
+                        } else {
+                            app.notify.showShortTop("Url.Map Search " + url);
+                            var ref = window.open(url, "_blank", "location=yes");
+                            ref.addEventListener("loaderror", iabLoadError);
+                            ref.addEventListener("exit", iabClose);
+                        }
+                        app.mobileApp.navigate('views/mapView.html');
                     }
-                    app.mobileApp.navigate('views/mapView.html');
+                } catch (e) {
+                    app.showError(JSON.stringify(e.message))
                 }
+
             },
             onSelected: function (e) {
                 if (!e.dataItem) {
